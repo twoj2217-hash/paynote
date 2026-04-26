@@ -1,0 +1,19 @@
+{
+  "ignoreDependencies": ["chart.js", "qrcode", "@types/qrcode"],
+  "ignoreIssues": {
+    "src/lib/utils/payroll-calc.ts": ["exports"],
+    "src/lib/utils/timezone.ts": ["exports"],
+    "src/lib/payroll.ts": ["exports"]
+  },
+  "ignore": [
+    ".agents/**",
+    "review-ai/**",
+    "tools/**",
+    "src/lib/utils/korea-map-path.ts",
+    "src/lib/utils/pixel-character.ts",
+    "src/lib/utils/review-prompts.ts",
+    "src/lib/utils/review-dictionary.ts",
+    "src/lib/components/StoreDashboard.svelte"
+  ],
+  "ignoreExportsUsedInFile": true
+}

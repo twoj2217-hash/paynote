@@ -1,0 +1,40 @@
+# PR·푸시마다 Health Stack과 동일한 검사를 실행합니다.
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run check
+
+      - name: Lint (TypeScript)
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Dead code (knip, CI는 미사용 export 시 실패)
+        run: npm run deadcode:ci
+
+      - name: Production build
+        run: npm run build

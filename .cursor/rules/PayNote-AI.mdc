@@ -1,0 +1,25 @@
+---
+alwaysApply: true
+---
+
+# PayNote 프로젝트 AI 행동 규칙
+
+## 언어
+- 나와 대화할 때는 반드시 한국어로 설명할 것
+- UI 텍스트도 자연스러운 한국어 사용
+
+## 기술 스택
+- Frontend: SvelteKit (SSR + CSR), Tailwind CSS (Mobile-first)
+- Backend/DB: Supabase (PostgreSQL)
+- 아이콘: lucide-svelte
+
+## 절대 규칙
+- DB 스키마(SQL) 수정 시 → 반드시 연관 Svelte 페이지 코드도 함께 수정할 것
+- Supabase Insert/Update 시 → NOT NULL 컬럼 항상 확인할 것
+- 시간 처리는 반드시 KST(한국 표준시) 기준으로 할 것
+- 더미 store_id 하드코딩 절대 금지
+
+## 코드 스타일
+- Svelte 반응성($, runes) 적극 활용
+- 비동기 작업 시 반드시 로딩 스피너 또는 버튼 비활성화 처리
+- 에러 발생 시 한국어로 사용자에게 안내 메시지 출력

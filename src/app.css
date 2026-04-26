@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=SUIT:wght@600;700&display=swap');
+
+/* 전역 타이포·배경·공용 UI 유틸 */
+@layer base {
+	body {
+		/* 기본 UI 본문은 Noto Sans KR로 고정해 한국어 가독성을 유지합니다. */
+		font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+		@apply bg-surface text-ink-900 antialiased;
+	}
+}
+
+@layer components {
+	.card {
+		@apply bg-surface-card border border-surface-border rounded-2xl p-4 sm:p-5;
+	}
+
+	.heading-accent {
+		/* 강조 헤더에만 보조 폰트를 사용합니다. */
+		font-family: 'SUIT', 'Noto Sans KR', sans-serif;
+	}
+
+	.badge {
+		@apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+	}
+	.badge-success {
+		@apply bg-green-100 text-green-700;
+	}
+	.badge-warning {
+		@apply bg-yellow-100 text-yellow-700;
+	}
+	.badge-danger {
+		@apply bg-red-100 text-red-700;
+	}
+	.badge-info {
+		@apply bg-primary-100 text-primary-700;
+	}
+	.badge-neutral {
+		@apply bg-gray-100 text-gray-500;
+	}
+
+	.btn-primary {
+		@apply bg-primary-600 hover:bg-primary-700 text-white font-semibold
+			rounded-xl py-3 px-5 transition-colors
+			disabled:opacity-50 disabled:cursor-not-allowed;
+	}
+	.btn-secondary {
+		@apply bg-white hover:bg-gray-50 text-gray-700 font-medium
+			border border-surface-border rounded-xl py-3 px-5 transition-colors;
+	}
+
+	.btn-accent {
+		@apply bg-accent-600 hover:bg-accent-700 text-white font-semibold
+			rounded-xl py-3 px-5 transition-colors
+			disabled:opacity-50 disabled:cursor-not-allowed;
+	}
+}

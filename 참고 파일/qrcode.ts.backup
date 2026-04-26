@@ -1,0 +1,64 @@
+// 백업 목적: src/lib/qrcode.ts 삭제 전 TTL(5분) 검증 로직 보관
+import QRCode from 'qrcode';
+
+export interface QRPayload {
+  employeeId: string;
+  storeId: string;
+  action: 'clock_in' | 'clock_out';
+  issuedAt: number; // Unix timestamp (ms)
+}
+
+// QR 유효 시간: 5분
+const QR_TTL_MS = 5 * 60 * 1000;
+
+/**
+ * 직원용 QR 코드 데이터 URL 생성
+ */
+export async function generateQRCode(payload: QRPayload): Promise<string> {
+  const data = JSON.stringify(payload);
+  return QRCode.toDataURL(data, {
+    width: 256,
+    margin: 2,
+    color: { dark: '#1e293b', light: '#ffffff' },
+  });
+}
+
+/**
+ * QR 코드 문자열 파싱 및 유효성 검증
+ * - JSON 파싱 가능 여부
+ * - 발급 후 5분 이내인지 (만료 체크)
+ */
+export function parseAndValidateQR(raw: string): {
+  valid: boolean;
+  payload?: QRPayload;
+  error?: string;
+} {
+  let payload: QRPayload;
+  try {
+    payload = JSON.parse(raw);
+  } catch {
+    return { valid: false, error: '잘못된 QR 코드 형식입니다.' };
+  }
+
+  if (!payload.employeeId || !payload.storeId || !payload.action || !payload.issuedAt) {
+    return { valid: false, error: 'QR 코드 데이터가 올바르지 않습니다.' };
+  }
+
+  const age = Date.now() - payload.issuedAt;
+  if (age > QR_TTL_MS) {
+    return { valid: false, error: 'QR 코드가 만료되었습니다. 새로 생성해 주세요.' };
+  }
+
+  return { valid: true, payload };
+}
+
+/**
+ * 현재 시각 기준으로 직원 QR payload 생성 (action 자동 결정은 호출부에서)
+ */
+export function createQRPayload(
+  employeeId: string,
+  storeId: string,
+  action: 'clock_in' | 'clock_out'
+): QRPayload {
+  return { employeeId, storeId, action, issuedAt: Date.now() };
+}

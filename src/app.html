@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- Pretendard 웹폰트 (CDN) -->
+		<!-- 폰트 CDN 연결 성능 향상을 위해 crossorigin preconnect 적용 -->
+		<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
