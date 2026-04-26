@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { supabase } from '$lib/supabaseClient';
+  import { hashPin } from '$lib/security/pin';
   import { MIN_HOURLY_WAGE } from '$lib/payroll';
   import { calculateMonthlyAllowance, calculatePay } from '$lib/utils/payroll-calc';
   import { parseUtc } from '$lib/utils/timezone';
@@ -100,12 +101,14 @@
       return;
     }
 
+    // PIN은 평문 저장 금지: 해시 후 저장합니다.
+    const hashedPin = await hashPin(newPin);
     const { error } = await supabase.from('employees').insert([{
       id: crypto.randomUUID(),
       name: newName.trim(),
       hourly_wage: newWage,
       store_id: storeId,
-      pin_code: newPin,
+      pin_code: hashedPin,
       weekly_contracted_days: days,
     }]);
 
@@ -209,7 +212,8 @@
       [emp.id]: {
         hourly_wage: emp.hourly_wage,
         weekly_contracted_days: emp.weekly_contracted_days ?? 5,
-        pin_code: emp.pin_code ?? ''
+        // 기존 해시값은 폼에 노출하지 않습니다.
+        pin_code: ''
       }
     };
   }
@@ -236,11 +240,6 @@
       errorMsg = '주당 근무일은 1일에서 7일 사이여야 합니다.';
       return;
     }
-    if (!/^\d{4}$/.test(pin)) {
-      errorMsg = 'PIN은 숫자 4자리로 입력해 주세요.';
-      return;
-    }
-
     const storeId = data.storeId;
     if (!storeId) {
       errorMsg = '매장 정보를 확인할 수 없습니다. 다시 로그인해 주세요.';
@@ -252,13 +251,25 @@
     isUpdating = true;
 
     // UUID(id)는 유지하고 수정 가능한 필드만 UPDATE 합니다.
+    // PIN은 입력된 경우에만 검증/해싱 후 업데이트하고, 비어있으면 기존 해시를 유지합니다.
+    const updatePayload: { hourly_wage: number; weekly_contracted_days: number; pin_code?: string } = {
+      hourly_wage: wage,
+      weekly_contracted_days: days
+    };
+    let hashedPinForUpdate: string | null = null;
+    if (pin) {
+      if (!/^\d{4}$/.test(pin)) {
+        errorMsg = 'PIN은 숫자 4자리로 입력해 주세요.';
+        isUpdating = false;
+        return;
+      }
+      hashedPinForUpdate = await hashPin(pin);
+      updatePayload.pin_code = hashedPinForUpdate;
+    }
+
     const { error } = await supabase
       .from('employees')
-      .update({
-        hourly_wage: wage,
-        weekly_contracted_days: days,
-        pin_code: pin
-      })
+      .update(updatePayload)
       .eq('id', emp.id)
       .eq('store_id', storeId);
 
@@ -274,7 +285,8 @@
             ...row,
             hourly_wage: wage,
             weekly_contracted_days: days,
-            pin_code: pin
+            // PIN 미변경 시 기존 해시 유지, 변경 시 새 해시 반영
+            pin_code: hashedPinForUpdate ?? row.pin_code
           }
         : row
     );
@@ -389,6 +401,7 @@
                     type="password"
                     inputmode="numeric"
                     maxlength="4"
+                    placeholder="변경 시에만 입력"
                     bind:value={editDrafts[emp.id].pin_code}
                     class="w-20 p-2 border border-surface-border rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-center tracking-widest"
                   >

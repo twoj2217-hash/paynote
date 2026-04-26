@@ -1,6 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { supabaseAdmin } from '$lib/supabaseAdmin';
+import { verifyPin } from '$lib/security/pin';
 
 type PinAttemptResult = {
 	status: 'locked' | 'wrong_pin' | 'ok';
@@ -31,7 +32,7 @@ export const actions: Actions = {
 			return fail(400, { error: '직원 정보를 찾을 수 없습니다.' });
 		}
 
-		const isCorrect = pin === employee.pin_code;
+		const isCorrect = await verifyPin(pin, employee.pin_code);
 
 		// ── C-01 v3: IP 추출 ──────────────────────────────
 		// getClientAddress()는 플랫폼 제공 신뢰 IP, 헤더는 조작 가능성 있으므로 fallback만
