@@ -115,7 +115,8 @@
 
       // QR 라이브러리는 버튼 클릭 시점에만 로드해 초기 진입 성능을 보존합니다.
       const { default: QRCode } = await import('qrcode');
-      const url = `${window.location.origin}/q/${storeId}`;
+      const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+      const url = `${siteUrl}/q/${storeId}`;
       const dataUrl = await QRCode.toDataURL(url, {
         width: 400,
         margin: 2,
